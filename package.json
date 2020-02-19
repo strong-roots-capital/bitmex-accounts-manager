@@ -6,8 +6,9 @@
     "types": "dist/src/bitmex-accounts-manager.d.ts",
     "scripts": {
         "prepublishOnly": "npm run clean && npm run compile",
-        "compile": "tsc",
+        "compile": "npm run genversion && tsc",
         "watch:compile": "nodemon -e 'ts json' -x 'npm run compile || true'",
+        "genversion": "genversion -e src/version.ts",
         "clean": "rimraf --no-glob dist",
         "lint-staged": "lint-staged",
         "ava": "ava -v",
@@ -57,6 +58,7 @@
         "eslint-plugin-ava": "^10.2.0",
         "eslint-plugin-security": "^1.4.0",
         "fast-check": "^1.22.2",
+        "genversion": "^2.2.0",
         "lint-staged": "^10.0.7",
         "nyc": "^15.0.0",
         "pre-commit": "^1.2.2",
