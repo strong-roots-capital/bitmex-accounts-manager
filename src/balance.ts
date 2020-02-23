@@ -16,6 +16,8 @@ const debug = {
     balance: Debug(`bam:balance`)
 }
 
+const sum = fold(monoidSum)
+
 export function balance(
     _options: CommandLineOptions,
     accounts: Accounts
@@ -28,7 +30,7 @@ export function balance(
 
     return parallel(concurrentQueries())(queries)
         .pipe(map(wallets => wallets.map(get('amount'))))
-        .pipe(map(balances => [...balances, fold(monoidSum)(balances)]))
+        .pipe(map(balances => [...balances, sum(balances)]))
         .pipe(map(zip([...Object.keys(accounts), 'Total'])))
         .pipe(map(data => table(data, tableConfig)))
         .pipe(map(table => () => console.log(table)))
