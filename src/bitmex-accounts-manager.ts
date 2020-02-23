@@ -14,11 +14,16 @@ import { Effect } from './effect'
 // - cancel
 // - close
 // - profits
+// - funding (expected)
+// - affiliate
+// - commission
+// - withdrawal
+// PnL history
 
 
 export function bitmexAccountsManager(
     argv: string[]
-): FutureInstance<string, Effect> {
+): FutureInstance<unknown, Effect> {
 
     const options = parseOptions(argv)
     const accounts = parseAccounts()

@@ -4,9 +4,12 @@ import { fork } from 'fluture'
 import { bitmexAccountsManager } from './bitmex-accounts-manager'
 
 function main(): void {
-    fork (console.error.bind(null))
-    (() => {return void 0})
-    (bitmexAccountsManager(process.argv.slice(2)))
+    bitmexAccountsManager(process.argv.slice(2))
+        .pipe(
+            fork
+            (console.error.bind(null))
+            (effect => effect())
+        )
 }
 
 main()

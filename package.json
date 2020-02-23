@@ -105,9 +105,14 @@
     ],
     "dependencies": {
         "@strong-roots-capital/docker-secrets": "^2.0.0",
+        "@strong-roots-capital/zip": "^1.0.0",
+        "bitmex-node": "^1.9.0",
         "docopt": "^0.6.2",
         "fluture": "^12.2.0",
         "fluture-retry": "^3.0.0",
-        "purify-ts": "^0.14.1"
+        "fp-ts": "^2.5.0",
+        "purify-ts": "^0.14.1",
+        "shades": "^2.1.0",
+        "table": "^5.4.6"
     }
 }

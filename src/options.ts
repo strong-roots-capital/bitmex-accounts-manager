@@ -3,6 +3,7 @@ import { version } from './safe-version'
 import { Debug } from './debug'
 
 const debug = {
+    rawOptions: Debug(`bam:raw-options`),
     options: Debug('bam:options')
 }
 
@@ -10,15 +11,15 @@ const docstring = `
 BitMEX Accounts Manager
 
 Usage:
-    bam (balance) [--combined]
+    bam (balance) [--account <account>...]
 
 Options:
-    -c --combined    Aggregate data from all accounts
+    -a --account    Filter results to specified accounts
 `
 
 export interface CommandLineOptions {
     command: 'balance';
-    combined: boolean;
+    accounts: string[];
 }
 
 export function parseOptions(argv: string[]): CommandLineOptions {
@@ -35,10 +36,10 @@ export function parseOptions(argv: string[]): CommandLineOptions {
 
     const options: CommandLineOptions = {
         command: rawOptions.balance ? 'balance' : 'balance',
-        combined: rawOptions['--combined']
+        accounts: rawOptions['<account>'],
     }
 
-    debug.options(rawOptions)
+    debug.rawOptions(rawOptions)
     debug.options(options)
 
     return options
