@@ -28,10 +28,10 @@ export function balance(
         query.wallet(name, account)
     )
 
-    return parallel(concurrentQueries())(queries)
-        .pipe(map(wallets => wallets.map(get('amount'))))
-        .pipe(map(balances => [...balances, sum(balances)]))
-        .pipe(map(zip([...Object.keys(accounts), 'Total'])))
-        .pipe(map(data => table(data, tableConfig)))
-        .pipe(map(table => () => console.log(table)))
+    return parallel (concurrentQueries()) (queries)
+        .pipe (map (wallets => wallets.map(get('amount'))))
+        .pipe (map (balances => [...balances, sum(balances)]))
+        .pipe (map (zip([...Object.keys(accounts), 'Total'])))
+        .pipe (map (data => data.length > 1 ? table(data, tableConfig) : ''))
+        .pipe (map (table => () => console.log(table)))
 }

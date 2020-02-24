@@ -1,68 +1,48 @@
-import { Codec } from 'purify-ts/Codec'
-import { Either, Right, Left } from 'purify-ts/Either'
+import * as t from 'io-ts'
 import { secrets } from '@strong-roots-capital/docker-secrets'
 import { trace, safeParseJson, id } from './fp'
-import { has, isObject } from './parse'
 import { Debug } from './debug'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { right, bimap, chain, fold } from 'fp-ts/lib/Either'
 
 const debug = {
     env: Debug(`bam:env`)
 }
 
-export interface Account {
-    apiKeyId: string;
-    apiKeySecret: string;
-}
-
-export type Name = string;
-export type Accounts = Record<Name, Account>;
-
-function isAccount(value: unknown): value is Account {
-    return isObject(value)
-        && has('apiKeyId', value)
-        && has('apiKeySecret', value)
-}
-
-function parseAccountRecord(value: unknown): Either<string, Accounts> {
-    if (!isObject(value)) {
-        return Left(`Expected Object, received '${value}'`)
-    }
-
-    const accounts: Accounts = Object.create(null)
-
-    for (const [k, v] of Object.entries(value)) {
-        if (!isAccount(v)) {
-            return Left(
-                [
-                    `Expected Account, received`,
-                    JSON.stringify({[k]: v})
-                ].join(' ')
-            )
-        }
-
-        accounts[k] = v
-    }
-
-    return Right(accounts)
-}
-
-const Accounts = Codec.custom<Accounts>({
-    decode: input => parseAccountRecord(input),
-    encode: id
+const AccountShape = t.type({
+    apiKeyId: t.string,
+    apiKeySecret: t.string
 })
+export type Account = t.TypeOf<typeof AccountShape>;
+
+const NameShape = t.string;
+export type Name = t.TypeOf<typeof NameShape>;
+
+const AccountsShape = t.record(t.string, AccountShape)
+export type Accounts = t.TypeOf<typeof AccountsShape>;
 
 export function parseAccounts(): Accounts {
 
     const secret = 'accounts'
 
-    return secrets.getSync(secret)
-        .toEither(secret.toUpperCase().concat(` environment variable not defined`))
+    const secretValue = secrets.getSync(secret)
+        .toEither(`${secret} environment variable not defined`)
         .chain(safeParseJson)
-        .chain(Accounts.decode)
         .mapLeft(trace(debug.env))
-        .chainLeft(() => Right(Object.create(null)))
-        .map(trace(debug.env, `Using accounts`))
-        .extract()
+        .orDefault(Object.create(null))
+
+    return pipe(
+        right(secretValue),
+        chain(AccountsShape.decode),
+        bimap(
+            (error) => {
+                console.error(`Error: unable to parse accounts from ${JSON.stringify(secretValue)}`)
+                return error
+            },
+            trace(debug.env, `Using accounts`)
+        ),
+        fold(() => Object.create(null), id)
+    )
 }
 
-//  LocalWords:  apiKeyId apiKeySecret bam
+//  LocalWords:  apiKeyId apiKeySecret bam secretValue
