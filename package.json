@@ -1,6 +1,6 @@
 {
     "name": "bitmex-accounts-manager",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Manage multiple BitMEX exchange accounts",
     "main": "dist/src/bitmex-accounts-manager.js",
     "types": "dist/src/bitmex-accounts-manager.d.ts",
