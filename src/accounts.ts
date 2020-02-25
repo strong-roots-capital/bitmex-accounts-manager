@@ -33,7 +33,7 @@ export function parseAccounts(): Accounts {
 
     return pipe(
         right(secretValue),
-        chain(AccountsShape.decode),
+        chain(AccountsShape.decode.bind(null)),
         bimap(error => {
             console.error(
                 `Error: unable to parse accounts from ${JSON.stringify(
