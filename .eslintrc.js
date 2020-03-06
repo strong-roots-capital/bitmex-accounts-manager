@@ -33,6 +33,15 @@ module.exports = {
                 ignoreProperties: true
             },
         ],
+        '@typescript-eslint/member-delimiter-style': [
+            'error',
+            {
+                multiline: {
+                    delimiter: 'none',
+                    requireLast: false
+                }
+            }
+        ],
         '@typescript-eslint/no-unnecessary-type-assertion': ['warn'],
         '@typescript-eslint/no-unused-vars': ['error', {'argsIgnorePattern': '^_'}],
         '@typescript-eslint/no-useless-constructor': 'warn',

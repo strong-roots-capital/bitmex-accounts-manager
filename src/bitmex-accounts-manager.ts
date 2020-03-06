@@ -5,13 +5,13 @@
 
 import { FutureInstance } from 'fluture'
 import { parseAccounts } from './accounts'
-import { balance } from './balance'
 import { parseOptions } from './options'
 import { Effect } from './effect'
 import { Maybe } from 'purify-ts'
+import { balance } from './subcommands/balance'
+import { position } from './subcommands/position'
 
 // TODO: discuss commands
-// - positions
 // - risk
 // - cancel
 // - close
@@ -25,8 +25,6 @@ import { Maybe } from 'purify-ts'
 export function bitmexAccountsManager(
     argv: string[]
 ): FutureInstance<unknown, Effect> {
-    console.log('Am here with argv', argv)
-
     const command = Maybe.fromNullable(argv[0])
         .map(command => [command])
         .orDefault([''])
@@ -37,6 +35,10 @@ export function bitmexAccountsManager(
     switch (options.command) {
         case 'balance':
             return balance(argv, accounts)
+        case 'position':
+            return position(argv, accounts)
+        default:
+            throw new Error(`No defined sub-command ${options.command}`)
     }
 }
 

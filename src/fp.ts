@@ -41,3 +41,35 @@ export function trace(
 export function isEmpty<T>(list: T[]): boolean {
     return list.length === 0
 }
+
+export function unsafeHead<T>(list: T[]): T {
+    return list[0]
+}
+
+export function selectValues<T extends object, K extends Partial<keyof T>>(
+    keys: K[],
+    value: T
+    // TODO: stronger return-type
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any[] {
+    const selected = Object.entries(value).reduce(
+        (acc, [key, value]) =>
+            keys.includes(key as K)
+                ? Object.assign(acc, { [key]: value })
+                : acc,
+        Object.create(null)
+    )
+
+    return keys.reduce(
+        // eslint-disable-next-line security/detect-object-injection
+        (acc, key) => acc.concat(selected[key]),
+        []
+    )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function not<F extends (...args: any[]) => any>(f: F): F {
+    return function negated(...args) {
+        return !f(...args)
+    } as F
+}

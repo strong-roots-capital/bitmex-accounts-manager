@@ -23,14 +23,13 @@ import {
 
 const debug = {
     options: Debug(`bam:balance:options`),
-    balance: Debug(`bam:balance`)
+    command: Debug(`bam:balance`)
 }
 
 const sum = fold(monoidSum)
 
 interface BalanceOptions extends CommandLineOptions {
     includeUnrealizedPnL: boolean
-    accounts: string[]
 }
 
 const docstring = `
@@ -57,7 +56,7 @@ function main(
     options: BalanceOptions,
     accounts: Accounts
 ): FutureInstance<unknown, Effect> {
-    debug.balance(`Executing command 'balance'`)
+    debug.command(`Executing command 'balance'`)
 
     const queries = Object.entries(accounts)
         .filter(isIncludedAccount(options.accounts))
@@ -70,7 +69,7 @@ function main(
     const isSummableBalance =
         isEmpty(options.accounts) || options.accounts.length > 1
 
-    const tableBalances = (balances: number[]) =>
+    const tableBalances = (balances: number[]): number[] =>
         isSummableBalance ? balances.concat(sum(balances)) : balances
 
     const tableAccountNames = isSummableBalance
