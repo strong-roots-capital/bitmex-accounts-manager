@@ -65,7 +65,7 @@ function main(
         'Quantity',
         'Entry Price',
         'Mark Price',
-        'RoE',
+        'Change',
         'Liquidation',
         'Leverage',
         'Cross',
@@ -77,7 +77,7 @@ function main(
         return table
     }
 
-    const addRoE = (
+    const addPercentageChange = (
         row: (string | number | boolean)[]
     ): (string | number | boolean)[] => {
         const entry = row[3] as number
@@ -142,7 +142,7 @@ function main(
                 )
             )
         )
-        .pipe(map(rows => rows.map(addRoE)))
+        .pipe(map(rows => rows.map(addPercentageChange)))
         .pipe(map(addTableColumnNames))
         .pipe(map(data => table(data, tableConfig)))
         .pipe(map(table => () => console.log(table)))
@@ -156,4 +156,4 @@ export const position = subcommand({
 })
 
 //  LocalWords:  bam currentQty avgEntryPrice markPrice crossMargin
-//  LocalWords:  liquidationPrice openingTimestamp RoE
+//  LocalWords:  liquidationPrice openingTimestamp
