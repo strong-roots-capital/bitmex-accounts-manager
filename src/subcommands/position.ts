@@ -2,6 +2,7 @@
 const { table } = require('table')
 
 import { Table, tableConfig } from '../table-config'
+import { percentageChange } from 'percentage-change'
 import { BITMEX } from 'bitmex-node'
 import { selectValues, isEmpty } from '../fp'
 import { FutureInstance, map, parallel } from 'fluture'
@@ -12,7 +13,7 @@ import * as query from '../query'
 import { CommandLineOptions } from '../options'
 import { Effect } from '../effect'
 import { version } from '../safe-version'
-import { Accounts, isIncludedAccount } from '../accounts'
+import { Name, Accounts, isIncludedAccount } from '../accounts'
 
 const debug = {
     options: Debug(`bam:position:options`),
@@ -64,6 +65,7 @@ function main(
         'Quantity',
         'Entry Price',
         'Mark Price',
+        'RoE',
         'Liquidation',
         'Leverage',
         'Cross',
@@ -73,6 +75,22 @@ function main(
     const addTableColumnNames = (table: Table): Table => {
         table.unshift(tableColumnNames)
         return table
+    }
+
+    const addRoE = (
+        row: (string | number | boolean)[]
+    ): (string | number | boolean)[] => {
+        const entry = row[3] as number
+        const mark = row[4] as number
+        row.splice(
+            5,
+            0,
+            percentageChange(entry, mark)
+                .map(n => n.toFixed(2))
+                .map(n => `${n}%`)
+                .orDefault('n/a')
+        )
+        return row
     }
 
     return parallel(concurrentQueries())(queries)
@@ -93,25 +111,38 @@ function main(
         )
         .pipe(
             map(accountPositions =>
-                accountPositions.map(([name, position]) => [
-                    name,
-                    ...selectValues(
+                accountPositions.map(
+                    ([name, position]) =>
                         [
-                            'symbol',
-                            'currentQty',
-                            'avgEntryPrice',
-                            'markPrice',
-                            'liquidationPrice',
-                            'leverage',
-                            'crossMargin',
-                            'openingTimestamp'
-                        ],
-                        position
-                    )
-                ])
+                            name,
+                            ...selectValues(
+                                [
+                                    'symbol',
+                                    'currentQty',
+                                    'avgEntryPrice',
+                                    'markPrice',
+                                    'liquidationPrice',
+                                    'leverage',
+                                    'crossMargin',
+                                    'openingTimestamp'
+                                ],
+                                position
+                            )
+                        ] as [
+                            Name,
+                            string,
+                            number,
+                            number,
+                            number,
+                            number,
+                            number,
+                            boolean,
+                            string
+                        ]
+                )
             )
         )
-        .pipe(map(positions => positions.map(values => values.flat())))
+        .pipe(map(rows => rows.map(addRoE)))
         .pipe(map(addTableColumnNames))
         .pipe(map(data => table(data, tableConfig)))
         .pipe(map(table => () => console.log(table)))
@@ -125,4 +156,4 @@ export const position = subcommand({
 })
 
 //  LocalWords:  bam currentQty avgEntryPrice markPrice crossMargin
-//  LocalWords:  liquidationPrice openingTimestamp
+//  LocalWords:  liquidationPrice openingTimestamp RoE

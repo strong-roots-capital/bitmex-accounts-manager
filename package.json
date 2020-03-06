@@ -112,6 +112,7 @@
         "fluture-retry": "^3.0.0",
         "fp-ts": "^2.5.0",
         "io-ts": "^2.1.1",
+        "percentage-change": "^2.0.0",
         "purify-ts": "^0.14.1",
         "shades": "^2.1.0",
         "table": "^5.4.6"
