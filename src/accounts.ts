@@ -39,9 +39,8 @@ export function parseAccounts(): Accounts {
         chain(AccountsShape.decode.bind(null)),
         bimap(error => {
             console.error(
-                `Error: unable to parse accounts from ${JSON.stringify(
-                    secretValue
-                )}`
+                `Error: unable to parse accounts from`,
+                JSON.stringify(secretValue)
             )
             return error
         }, trace(debug.env, `Using accounts`)),
