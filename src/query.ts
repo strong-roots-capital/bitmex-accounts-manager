@@ -1,8 +1,8 @@
 import * as Future from 'fluture'
-import { FutureInstance, map } from 'fluture'
+import { FutureInstance } from 'fluture'
 import { BITMEX, BitmexAPI } from 'bitmex-node'
 import { Debug } from './debug'
-import { Account, Name } from './accounts'
+import { Account } from './accounts'
 
 const debug = {
     query: Debug(`bam:query`)
@@ -38,11 +38,11 @@ export function margin(
 export function position(
     name: string,
     account: Account
-): FutureInstance<unknown, [Name, BITMEX.Position[]]> {
+): FutureInstance<unknown, BITMEX.Position[]> {
     return Future.attemptP(async function queryBitmexPosition() {
         debug.query(`Querying position for account ${name}`)
         return client(account).Position.get({
             filter: JSON.stringify({ isOpen: true })
         })
-    }).pipe(map(position => [name, position]))
+    })
 }

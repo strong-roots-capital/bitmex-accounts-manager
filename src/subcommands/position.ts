@@ -43,9 +43,16 @@ function main(
 ): FutureInstance<unknown, Effect> {
     debug.command(`Executing command 'position'`)
 
-    const queries = Object.entries(accounts)
+    const queries: FutureInstance<
+        unknown,
+        [string, BITMEX.Position[]]
+    >[] = Object.entries(accounts)
         .filter(isIncludedAccount(options.accounts))
-        .map(([name, account]) => query.position(name, account))
+        .map(([name, account]) =>
+            query
+                .position(name, account)
+                .pipe(map(position => [name, position]))
+        )
 
     /**
      * DISCUSS: adding long/short for easy grepping
