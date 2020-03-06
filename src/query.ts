@@ -24,3 +24,13 @@ export function wallet(
         return client(account).User.getWallet()
     })
 }
+
+export function margin(
+    name: string,
+    account: Account
+): FutureInstance<unknown, BITMEX.Margin> {
+    return Future.attemptP(async function queryBitmexMargin() {
+        debug.query(`Querying margin for account ${name}`)
+        return client(account).User.getMargin()
+    })
+}

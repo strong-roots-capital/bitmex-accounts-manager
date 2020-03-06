@@ -8,6 +8,7 @@ import { parseAccounts } from './accounts'
 import { balance } from './balance'
 import { parseOptions } from './options'
 import { Effect } from './effect'
+import { Maybe } from 'purify-ts'
 
 // TODO: discuss commands
 // - risk
@@ -20,17 +21,21 @@ import { Effect } from './effect'
 // - withdrawal
 // PnL history
 
-
 export function bitmexAccountsManager(
     argv: string[]
 ): FutureInstance<unknown, Effect> {
+    console.log('Am here with argv', argv)
 
-    const options = parseOptions(argv)
+    const command = Maybe.fromNullable(argv[0])
+        .map(command => [command])
+        .orDefault([''])
+
+    const options = parseOptions(command)
     const accounts = parseAccounts()
 
     switch (options.command) {
         case 'balance':
-            return balance(options, accounts)
+            return balance(argv, accounts)
     }
 }
 

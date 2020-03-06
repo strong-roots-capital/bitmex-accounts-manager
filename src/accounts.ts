@@ -21,6 +21,8 @@ export type Name = t.TypeOf<typeof NameShape>
 const AccountsShape = t.record(t.string, AccountShape)
 export type Accounts = t.TypeOf<typeof AccountsShape>
 
+export type NamedAccount = [string, Account]
+
 export function parseAccounts(): Accounts {
     const secret = 'accounts'
 
@@ -28,8 +30,8 @@ export function parseAccounts(): Accounts {
         .getSync(secret)
         .toEither(`${secret} environment variable not defined`)
         .chain(safeParseJson)
-        .mapLeft(trace(debug.env))
-        .orDefault(Object.create(null))
+        .mapLeft(trace(console.error, `Error parsing accounts:`))
+        .orDefaultLazy(process.exit.bind(null))
 
     return pipe(
         right(secretValue),

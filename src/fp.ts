@@ -37,3 +37,7 @@ export function trace(
     }
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
+
+export function isEmpty<T>(list: T[]): boolean {
+    return list.length === 0
+}
