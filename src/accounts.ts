@@ -1,6 +1,7 @@
 import * as t from 'io-ts'
 import { secrets } from '@strong-roots-capital/docker-secrets'
 import { trace, safeParseJson, id } from './fp'
+import { isEmpty } from './fp'
 import { Debug } from './debug'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { right, bimap, chain, fold } from 'fp-ts/lib/Either'
@@ -46,6 +47,29 @@ export function parseAccounts(): Accounts {
         }, trace(debug.env, `Using accounts`)),
         fold(() => Object.create(null), id)
     )
+}
+
+export function accountName([name, _account]: NamedAccount): Name {
+    return name
+}
+
+export function isIncludedAccount(
+    included: string[]
+): ([name, account]: NamedAccount) => boolean {
+    return function isAccountIncluded([name, _account]) {
+        return isEmpty(included) || included.includes(name)
+    }
+}
+
+function namedAccounts(accounts: Accounts): NamedAccount[] {
+    return Object.entries(accounts)
+}
+
+export function includedAccounts(
+    accounts: Accounts,
+    selected: Name[]
+): NamedAccount[] {
+    return namedAccounts(accounts).filter(isIncludedAccount(selected))
 }
 
 //  LocalWords:  bam secretValue

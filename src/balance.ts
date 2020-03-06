@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { table } = require('table')
+
 import zip from '@strong-roots-capital/zip'
 import { FutureInstance, map, parallel } from 'fluture'
 import { get } from 'shades'
@@ -5,15 +8,18 @@ import { fold, monoidSum } from 'fp-ts/lib/Monoid'
 import { version } from './safe-version'
 import { Effect } from './effect'
 import { CommandLineOptions } from './options'
-import { Accounts, NamedAccount } from './accounts'
 import { Debug } from './debug'
 import { concurrentQueries } from './bitmex'
 import { isEmpty } from './fp'
 import * as query from './query'
 import { subcommand } from './subcommand'
 import { tableConfig } from './table-config'
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { table } = require('table')
+import {
+    Accounts,
+    accountName,
+    isIncludedAccount,
+    includedAccounts
+} from './accounts'
 
 const debug = {
     options: Debug(`bam:balance:options`),
@@ -47,23 +53,11 @@ function parseArguments(rawOptions: Record<string, any>): BalanceOptions {
     }
 }
 
-function isIncludedAccount(
-    included: string[]
-): ([name, account]: NamedAccount) => boolean {
-    return function isAccountIncluded([name, _account]) {
-        return isEmpty(included) || included.includes(name)
-    }
-}
-
 function main(
     options: BalanceOptions,
     accounts: Accounts
 ): FutureInstance<unknown, Effect> {
     debug.balance(`Executing command 'balance'`)
-
-    const includedAccountNames = Object.entries(accounts)
-        .filter(isIncludedAccount(options.accounts))
-        .map(([name, _account]) => name)
 
     const queries = Object.entries(accounts)
         .filter(isIncludedAccount(options.accounts))
@@ -76,16 +70,17 @@ function main(
     const isSummableBalance =
         isEmpty(options.accounts) || options.accounts.length > 1
 
+    const tableBalances = (balances: number[]) =>
+        isSummableBalance ? balances.concat(sum(balances)) : balances
+
     const tableAccountNames = isSummableBalance
-        ? includedAccountNames.concat('Total')
-        : includedAccountNames
+        ? includedAccounts(accounts, options.accounts)
+              .map(accountName)
+              .concat('Total')
+        : includedAccounts(accounts, options.accounts).map(accountName)
 
     return parallel(concurrentQueries())(queries)
-        .pipe(
-            map(balances =>
-                isSummableBalance ? balances.concat(sum(balances)) : balances
-            )
-        )
+        .pipe(map(tableBalances))
         .pipe(map(zip(tableAccountNames)))
         .pipe(map(data => table(data, tableConfig)))
         .pipe(map(table => () => console.log(table)))
