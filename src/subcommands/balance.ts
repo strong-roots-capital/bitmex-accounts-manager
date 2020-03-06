@@ -5,21 +5,21 @@ import zip from '@strong-roots-capital/zip'
 import { FutureInstance, map, parallel } from 'fluture'
 import { get } from 'shades'
 import { fold, monoidSum } from 'fp-ts/lib/Monoid'
-import { version } from './safe-version'
-import { Effect } from './effect'
-import { CommandLineOptions } from './options'
-import { Debug } from './debug'
-import { concurrentQueries } from './bitmex'
-import { isEmpty } from './fp'
-import * as query from './query'
-import { subcommand } from './subcommand'
-import { tableConfig } from './table-config'
+import { version } from '../safe-version'
+import { Effect } from '../effect'
+import { CommandLineOptions } from '../options'
+import { Debug } from '../debug'
+import { concurrentQueries } from '../bitmex'
+import { isEmpty } from '../fp'
+import * as query from '../query'
+import { subcommand } from '../subcommand'
+import { tableConfig } from '../table-config'
 import {
     Accounts,
     accountName,
     isIncludedAccount,
     includedAccounts
-} from './accounts'
+} from '../accounts'
 
 const debug = {
     options: Debug(`bam:balance:options`),
