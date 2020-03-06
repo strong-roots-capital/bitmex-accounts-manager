@@ -2,7 +2,6 @@ import zip from '@strong-roots-capital/zip'
 import { FutureInstance, map, parallel } from 'fluture'
 import { get } from 'shades'
 import { fold, monoidSum } from 'fp-ts/lib/Monoid'
-import { docopt } from 'docopt'
 import { version } from './safe-version'
 import { Effect } from './effect'
 import { CommandLineOptions } from './options'
@@ -11,6 +10,7 @@ import { Debug } from './debug'
 import { concurrentQueries } from './bitmex'
 import { isEmpty } from './fp'
 import * as query from './query'
+import { subcommand } from './subcommand'
 import { tableConfig } from './table-config'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { table } = require('table')
@@ -38,7 +38,14 @@ Options:
     -u, --unrealized    Include unrealized PnL in output
 `
 
-// TODO: structure the subcommands
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseArguments(rawOptions: Record<string, any>): BalanceOptions {
+    return {
+        command: 'balance',
+        includeUnrealizedPnL: rawOptions['--unrealized'],
+        accounts: rawOptions['<account>']
+    }
+}
 
 function isIncludedAccount(
     included: string[]
@@ -48,24 +55,11 @@ function isIncludedAccount(
     }
 }
 
-export function balance(
-    argv: string[],
+function main(
+    options: BalanceOptions,
     accounts: Accounts
 ): FutureInstance<unknown, Effect> {
     debug.balance(`Executing command 'balance'`)
-
-    const rawOptions = docopt(docstring, {
-        argv: argv,
-        help: true,
-        version: version,
-        exit: true
-    })
-
-    const options: BalanceOptions = {
-        command: 'balance',
-        includeUnrealizedPnL: rawOptions['--unrealized'],
-        accounts: rawOptions['<account>']
-    }
 
     const includedAccountNames = Object.entries(accounts)
         .filter(isIncludedAccount(options.accounts))
@@ -96,5 +90,12 @@ export function balance(
         .pipe(map(data => table(data, tableConfig)))
         .pipe(map(table => () => console.log(table)))
 }
+
+export const balance = subcommand({
+    docstring,
+    version,
+    parseArguments,
+    main
+})
 
 //  LocalWords:  bam PnL marginBalance
