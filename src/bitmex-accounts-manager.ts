@@ -11,6 +11,7 @@ import { Effect } from './effect'
 import { Maybe } from 'purify-ts'
 
 // TODO: discuss commands
+// - positions
 // - risk
 // - cancel
 // - close

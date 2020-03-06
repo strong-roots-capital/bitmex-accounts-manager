@@ -7,8 +7,6 @@ const debug = {
     options: Debug('bam:options')
 }
 
-// TODO: add `positions` sub-command
-
 const docstring = `
 BitMEX Accounts Manager
 
